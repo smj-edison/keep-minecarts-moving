@@ -1,0 +1,5 @@
+name: KeepMinecartsMoving
+main: com.mason.keepminecartsmoving.KeepMinecartsMoving
+version: 0.1.0
+load: STARTUP
+api-version: 1.15
