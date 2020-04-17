@@ -24,6 +24,8 @@ public class EventListener implements Listener {
 	// any destroyed minecarts that need to be cleaned up
 	private List<Minecart> destroyedMinecarts = new ArrayList<>();
 	
+	public static final double MINECART_SPEED_THRESHOLD = 0.05D;
+	
 	public EventListener(KeepMinecartsMoving plugin) {
 		// run this every tick
 		plugin.getServer().getScheduler().scheduleSyncRepeatingTask(plugin, new Runnable() {
@@ -87,23 +89,33 @@ public class EventListener implements Listener {
 				
 				// turn all the chunks back on for the minecarts that still exist
 				for(Minecart m : minecartsOld) {
-					Location minecartLoc = m.getLocation();
-					World w = minecartLoc.getWorld();
+					// don't turn it back on if it's not moving fast enough or dead
+					Vector vel = m.getVelocity();
 					
-					Chunk minecartChunk = minecartLoc.getChunk();
-					
-					int minecartChunkX = minecartChunk.getX();
-					int minecartChunkZ = minecartChunk.getZ();
-					
-					Chunk minecartChunkNorth = w.getChunkAt(minecartChunkX, minecartChunkZ - 1);
-					Chunk minecartChunkEast = w.getChunkAt(minecartChunkX + 1, minecartChunkZ);
-					Chunk minecartChunkSouth = w.getChunkAt(minecartChunkX, minecartChunkZ + 1);
-					Chunk minecartChunkWest = w.getChunkAt(minecartChunkX - 1, minecartChunkZ);
-					
-					minecartChunkNorth.setForceLoaded(true);
-					minecartChunkEast.setForceLoaded(true);
-					minecartChunkSouth.setForceLoaded(true);
-					minecartChunkWest.setForceLoaded(true);
+					if(m.isDead() || (Math.abs(vel.getX()) <= MINECART_SPEED_THRESHOLD &&
+							   		  Math.abs(vel.getY()) <= MINECART_SPEED_THRESHOLD &&
+							   		  Math.abs(vel.getZ()) <= MINECART_SPEED_THRESHOLD)) {
+						// don't do anything if it's moving too slow or dead, the game will clean up
+						// non force loaded chunks
+					} else {
+						Location minecartLoc = m.getLocation();
+						World w = minecartLoc.getWorld();
+						
+						Chunk minecartChunk = minecartLoc.getChunk();
+						
+						int minecartChunkX = minecartChunk.getX();
+						int minecartChunkZ = minecartChunk.getZ();
+						
+						Chunk minecartChunkNorth = w.getChunkAt(minecartChunkX, minecartChunkZ - 1);
+						Chunk minecartChunkEast = w.getChunkAt(minecartChunkX + 1, minecartChunkZ);
+						Chunk minecartChunkSouth = w.getChunkAt(minecartChunkX, minecartChunkZ + 1);
+						Chunk minecartChunkWest = w.getChunkAt(minecartChunkX - 1, minecartChunkZ);
+						
+						minecartChunkNorth.setForceLoaded(true);
+						minecartChunkEast.setForceLoaded(true);
+						minecartChunkSouth.setForceLoaded(true);
+						minecartChunkWest.setForceLoaded(true);
+					}
 				}
 				
 				minecartsOld.clear();
@@ -138,9 +150,9 @@ public class EventListener implements Listener {
 			Vector vel = m.getVelocity();
 			
 			// and it's moving above the threshold speed
-			if(Math.abs(vel.getX()) > 0.05D ||
-			   Math.abs(vel.getY()) > 0.05D ||
-			   Math.abs(vel.getZ()) > 0.05D) {		
+			if(Math.abs(vel.getX()) > MINECART_SPEED_THRESHOLD ||
+			   Math.abs(vel.getY()) > MINECART_SPEED_THRESHOLD ||
+			   Math.abs(vel.getZ()) > MINECART_SPEED_THRESHOLD) {		
 				Location minecartLoc = v.getLocation();
 				World w = minecartLoc.getWorld();
 				
