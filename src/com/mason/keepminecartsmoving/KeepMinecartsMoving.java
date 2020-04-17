@@ -4,7 +4,7 @@ import org.bukkit.plugin.PluginManager;
 import org.bukkit.plugin.java.JavaPlugin;
 
 public class KeepMinecartsMoving extends JavaPlugin {
-	public static final String VERSION = "v0.1.0";
+	public static final String VERSION = "v0.1.1";
 	
 	PluginManager pm;
 	EventListener listener;
